@@ -6,34 +6,1318 @@
     <title>UniCourse - Ders Materyalleri Yönetimi</title>
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar .logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar .logo h3 {
+            margin: 0;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .sidebar-nav .nav-item {
+            margin: 5px 0;
+        }
+
+        .sidebar-nav .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .sidebar-nav .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.full-width {
+            margin-left: 0;
+        }
+
+        .navbar {
+            background: #fff !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .course-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .course-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px 15px 0 0;
+            padding: 15px 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .form-control {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .alert {
+            border: none;
+            border-radius: 10px;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .material-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .material-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .content-area {
+                padding: 15px;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-toggle {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <!-- Navigation içeriği -->
-    </nav>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h3><i class="fas fa-graduation-cap"></i> UniCourse</h3>
+            <small>Ders Materyali Yönetimi</small>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="courses">
+                    <i class="fas fa-book"></i>
+                    Dersler
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="materials">
+                    <i class="fas fa-file-alt"></i>
+                    Materyaller
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    Ayarlar
+                </a>
+            </div>
+        </nav>
+    </div>
 
     <!-- Main Content -->
-    <main class="container-fluid">
-        <!-- Ana içerik -->
-    </main>
+    <div class="main-content" id="mainContent">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <button class="btn btn-primary mobile-toggle d-md-none" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="navbar-brand mb-0 h1">Ders Materyalleri Yönetim Sistemi</span>
+                <div class="ms-auto">
+                    <button class="btn btn-outline-primary" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-3 mt-5">
-        <!-- Footer içeriği -->
-    </footer>
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section active">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="mb-4">
+                            <i class="fas fa-tachometer-alt text-primary"></i>
+                            Dashboard
+                        </h2>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-book fa-2x mb-3"></i>
+                                <div class="stats-number" id="totalCourses">0</div>
+                                <div>Toplam Ders</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-alt fa-2x mb-3"></i>
+                                <div class="stats-number" id="totalMaterials">0</div>
+                                <div>Toplam Materyal</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar fa-2x mb-3"></i>
+                                <div class="stats-number" id="thisWeek">0</div>
+                                <div>Bu Hafta Eklenen</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-download fa-2x mb-3"></i>
+                                <div class="stats-number" id="totalDownloads">0</div>
+                                <div>Toplam İndirme</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Courses -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-clock"></i>
+                                    Son Eklenen Dersler
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentCourses">
+                                    <p class="text-muted text-center">Henüz ders eklenmemiş.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Section -->
+            <div id="courses-section" class="content-section" style="display: none;">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>
+                                <i class="fas fa-book text-primary"></i>
+                                Dersler
+                            </h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#courseModal">
+                                <i class="fas fa-plus"></i>
+                                Yeni Ders Ekle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="search-box">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="courseSearch" placeholder="Ders ara...">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="courseFilter">
+                                <option value="">Tüm Kategoriler</option>
+                                <option value="matematik">Matematik</option>
+                                <option value="fizik">Fizik</option>
+                                <option value="kimya">Kimya</option>
+                                <option value="biyoloji">Biyoloji</option>
+                                <option value="edebiyat">Edebiyat</option>
+                                <option value="tarih">Tarih</option>
+                                <option value="diger">Diğer</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Courses List -->
+                <div class="row" id="coursesList">
+                    <!-- Courses will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Materials Section -->
+            <div id="materials-section" class="content-section" style="display: none;">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>
+                                <i class="fas fa-file-alt text-primary"></i>
+                                Materyaller
+                            </h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#materialModal">
+                                <i class="fas fa-plus"></i>
+                                Yeni Materyal Ekle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Material Search -->
+                <div class="search-box">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="materialSearch" placeholder="Materyal ara...">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" id="materialCourseFilter">
+                                <option value="">Tüm Dersler</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" id="materialTypeFilter">
+                                <option value="">Tüm Türler</option>
+                                <option value="pdf">PDF</option>
+                                <option value="video">Video</option>
+                                <option value="image">Resim</option>
+                                <option value="document">Döküman</option>
+                                <option value="other">Diğer</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Materials List -->
+                <div id="materialsList">
+                    <!-- Materials will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="content-section" style="display: none;">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="mb-4">
+                            <i class="fas fa-cog text-primary"></i>
+                            Ayarlar
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Genel Ayarlar</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Tema</label>
+                                    <select class="form-control" id="themeSelect">
+                                        <option value="light">Açık Tema</option>
+                                        <option value="dark">Koyu Tema</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Sayfa Başına Öğe Sayısı</label>
+                                    <select class="form-control" id="itemsPerPage">
+                                        <option value="10">10</option>
+                                        <option value="25" selected>25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Veri Yönetimi</h5>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-warning mb-2 w-100" id="exportData">
+                                    <i class="fas fa-download"></i>
+                                    Verileri Dışa Aktar
+                                </button>
+                                <button class="btn btn-info mb-2 w-100" id="importData">
+                                    <i class="fas fa-upload"></i>
+                                    Verileri İçe Aktar
+                                </button>
+                                <button class="btn btn-danger w-100" id="clearAllData">
+                                    <i class="fas fa-trash"></i>
+                                    Tüm Verileri Temizle
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Modal -->
+    <div class="modal fade" id="courseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ders Ekle/Düzenle</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="courseForm">
+                        <div class="mb-3">
+                            <label class="form-label">Ders Adı *</label>
+                            <input type="text" class="form-control" id="courseName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ders Kodu</label>
+                            <input type="text" class="form-control" id="courseCode">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategori *</label>
+                            <select class="form-control" id="courseCategory" required>
+                                <option value="">Kategori Seçin</option>
+                                <option value="matematik">Matematik</option>
+                                <option value="fizik">Fizik</option>
+                                <option value="kimya">Kimya</option>
+                                <option value="biyoloji">Biyoloji</option>
+                                <option value="edebiyat">Edebiyat</option>
+                                <option value="tarih">Tarih</option>
+                                <option value="diger">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="courseDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Öğretmen</label>
+                            <input type="text" class="form-control" id="courseInstructor">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" id="saveCourse">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Material Modal -->
+    <div class="modal fade" id="materialModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Materyal Ekle/Düzenle</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="materialForm">
+                        <div class="mb-3">
+                            <label class="form-label">Materyal Adı *</label>
+                            <input type="text" class="form-control" id="materialName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ders *</label>
+                            <select class="form-control" id="materialCourse" required>
+                                <option value="">Ders Seçin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tür *</label>
+                            <select class="form-control" id="materialType" required>
+                                <option value="">Tür Seçin</option>
+                                <option value="pdf">PDF</option>
+                                <option value="video">Video</option>
+                                <option value="image">Resim</option>
+                                <option value="document">Döküman</option>
+                                <option value="other">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dosya URL'i *</label>
+                            <input type="url" class="form-control" id="materialUrl" placeholder="https://..." required>
+                            <small class="form-text text-muted">Google Drive, Dropbox veya başka bir dosya paylaşım linkini giriniz.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="materialDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" id="saveMaterial">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alertContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // UniCourse App - Complete Course Management System
+        class UniCourseApp {
+            constructor() {
+                this.courses = JSON.parse(localStorage.getItem('unicourse_courses') || '[]');
+                this.materials = JSON.parse(localStorage.getItem('unicourse_materials') || '[]');
+                this.settings = JSON.parse(localStorage.getItem('unicourse_settings') || '{"theme": "light", "itemsPerPage": 25}');
+                this.currentCourseId = null;
+                this.currentMaterialId = null;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadDashboard();
+                this.updateStats();
+                this.applyTheme();
+                
+                // Add some demo data if empty
+                if (this.courses.length === 0) {
+                    this.addDemoData();
+                }
+            }
+
+            setupEventListeners() {
+                // Sidebar navigation
+                document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = e.target.closest('.nav-link').dataset.section;
+                        this.showSection(section);
+                        
+                        // Update active state
+                        document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+                        e.target.closest('.nav-link').classList.add('active');
+                    });
+                });
+
+                // Mobile sidebar toggle
+                document.getElementById('sidebarToggle').addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('show');
+                });
+
+                // Course form
+                document.getElementById('saveCourse').addEventListener('click', () => this.saveCourse());
+                
+                // Material form
+                document.getElementById('saveMaterial').addEventListener('click', () => this.saveMaterial());
+
+                // Search and filters
+                document.getElementById('courseSearch').addEventListener('input', (e) => this.filterCourses());
+                document.getElementById('courseFilter').addEventListener('change', (e) => this.filterCourses());
+                document.getElementById('materialSearch').addEventListener('input', (e) => this.filterMaterials());
+                document.getElementById('materialCourseFilter').addEventListener('change', (e) => this.filterMaterials());
+                document.getElementById('materialTypeFilter').addEventListener('change', (e) => this.filterMaterials());
+
+                // Settings
+                document.getElementById('themeSelect').addEventListener('change', (e) => this.changeTheme(e.target.value));
+                document.getElementById('exportData').addEventListener('click', () => this.exportData());
+                document.getElementById('importData').addEventListener('click', () => this.importData());
+                document.getElementById('clearAllData').addEventListener('click', () => this.clearAllData());
+
+                // Theme toggle
+                document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+            }
+
+            showSection(sectionName) {
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                // Show selected section
+                document.getElementById(sectionName + '-section').style.display = 'block';
+
+                // Load section-specific data
+                switch(sectionName) {
+                    case 'dashboard':
+                        this.loadDashboard();
+                        break;
+                    case 'courses':
+                        this.loadCourses();
+                        break;
+                    case 'materials':
+                        this.loadMaterials();
+                        this.updateMaterialFilters();
+                        break;
+                    case 'settings':
+                        this.loadSettings();
+                        break;
+                }
+            }
+
+            // Dashboard Methods
+            loadDashboard() {
+                this.updateStats();
+                this.loadRecentCourses();
+            }
+
+            updateStats() {
+                const totalCourses = this.courses.length;
+                const totalMaterials = this.materials.length;
+                const thisWeek = this.getThisWeekCount();
+                const totalDownloads = this.materials.reduce((sum, m) => sum + (m.downloads || 0), 0);
+
+                document.getElementById('totalCourses').textContent = totalCourses;
+                document.getElementById('totalMaterials').textContent = totalMaterials;
+                document.getElementById('thisWeek').textContent = thisWeek;
+                document.getElementById('totalDownloads').textContent = totalDownloads;
+            }
+
+            getThisWeekCount() {
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                
+                return this.materials.filter(material => {
+                    const materialDate = new Date(material.createdAt);
+                    return materialDate >= oneWeekAgo;
+                }).length;
+            }
+
+            loadRecentCourses() {
+                const recentCourses = this.courses.slice(-5).reverse();
+                const container = document.getElementById('recentCourses');
+                
+                if (recentCourses.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center">Henüz ders eklenmemiş.</p>';
+                    return;
+                }
+
+                container.innerHTML = recentCourses.map(course => `
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <strong>${course.name}</strong>
+                            <small class="text-muted d-block">${course.category}</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary">${this.getMaterialCount(course.id)} materyal</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            getMaterialCount(courseId) {
+                return this.materials.filter(m => m.courseId === courseId).length;
+            }
+
+            // Course Methods
+            loadCourses() {
+                this.renderCourses(this.courses);
+            }
+
+            renderCourses(courses) {
+                const container = document.getElementById('coursesList');
+                
+                if (courses.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Henüz ders eklenmemiş</h5>
+                                <p class="text-muted">İlk dersinizi eklemek için "Yeni Ders Ekle" butonuna tıklayın.</p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = courses.map(course => `
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card course-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">${course.name}</h6>
+                                <span class="badge bg-light text-dark">${course.code || 'N/A'}</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text text-muted">${course.description || 'Açıklama yok'}</p>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user"></i> ${course.instructor || 'Belirtilmemiş'}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-tag"></i> ${course.category}
+                                    </small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary">
+                                        <i class="fas fa-file-alt"></i> ${this.getMaterialCount(course.id)} materyal
+                                    </span>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="app.editCourse('${course.id}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="app.deleteCourse('${course.id}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            filterCourses() {
+                const search = document.getElementById('courseSearch').value.toLowerCase();
+                const category = document.getElementById('courseFilter').value;
+                
+                let filtered = this.courses.filter(course => {
+                    const matchesSearch = course.name.toLowerCase().includes(search) || 
+                                        course.code.toLowerCase().includes(search) ||
+                                        course.instructor.toLowerCase().includes(search);
+                    const matchesCategory = !category || course.category === category;
+                    
+                    return matchesSearch && matchesCategory;
+                });
+                
+                this.renderCourses(filtered);
+            }
+
+            saveCourse() {
+                const form = document.getElementById('courseForm');
+                const formData = new FormData(form);
+                
+                const course = {
+                    id: this.currentCourseId || this.generateId(),
+                    name: document.getElementById('courseName').value,
+                    code: document.getElementById('courseCode').value,
+                    category: document.getElementById('courseCategory').value,
+                    description: document.getElementById('courseDescription').value,
+                    instructor: document.getElementById('courseInstructor').value,
+                    createdAt: this.currentCourseId ? this.courses.find(c => c.id === this.currentCourseId).createdAt : new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (!course.name || !course.category) {
+                    this.showAlert('Ders adı ve kategori zorunludur!', 'danger');
+                    return;
+                }
+
+                if (this.currentCourseId) {
+                    const index = this.courses.findIndex(c => c.id === this.currentCourseId);
+                    this.courses[index] = course;
+                    this.showAlert('Ders başarıyla güncellendi!', 'success');
+                } else {
+                    this.courses.push(course);
+                    this.showAlert('Ders başarıyla eklendi!', 'success');
+                }
+
+                this.saveCourses();
+                this.loadCourses();
+                this.updateStats();
+                this.resetCourseForm();
+                bootstrap.Modal.getInstance(document.getElementById('courseModal')).hide();
+            }
+
+            editCourse(courseId) {
+                const course = this.courses.find(c => c.id === courseId);
+                if (!course) return;
+
+                this.currentCourseId = courseId;
+                document.getElementById('courseName').value = course.name;
+                document.getElementById('courseCode').value = course.code || '';
+                document.getElementById('courseCategory').value = course.category;
+                document.getElementById('courseDescription').value = course.description || '';
+                document.getElementById('courseInstructor').value = course.instructor || '';
+
+                new bootstrap.Modal(document.getElementById('courseModal')).show();
+            }
+
+            deleteCourse(courseId) {
+                if (!confirm('Bu dersi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) return;
+
+                // Delete course materials first
+                this.materials = this.materials.filter(m => m.courseId !== courseId);
+                this.saveMaterials();
+
+                // Delete course
+                this.courses = this.courses.filter(c => c.id !== courseId);
+                this.saveCourses();
+
+                this.loadCourses();
+                this.updateStats();
+                this.showAlert('Ders ve ilgili materyaller başarıyla silindi!', 'success');
+            }
+
+            resetCourseForm() {
+                this.currentCourseId = null;
+                document.getElementById('courseForm').reset();
+            }
+
+            // Material Methods
+            loadMaterials() {
+                this.renderMaterials(this.materials);
+            }
+
+            renderMaterials(materials) {
+                const container = document.getElementById('materialsList');
+                
+                if (materials.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Henüz materyal eklenmemiş</h5>
+                            <p class="text-muted">İlk materyalinizi eklemek için "Yeni Materyal Ekle" butonuna tıklayın.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = materials.map(material => {
+                    const course = this.courses.find(c => c.id === material.courseId);
+                    const courseName = course ? course.name : 'Bilinmeyen Ders';
+                    
+                    return `
+                        <div class="material-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">${material.name}</h6>
+                                    <p class="text-muted mb-1">${material.description || 'Açıklama yok'}</p>
+                                    <div class="d-flex align-items-center text-muted">
+                                        <small class="me-3">
+                                            <i class="fas fa-book"></i> ${courseName}
+                                        </small>
+                                        <small class="me-3">
+                                            <i class="fas fa-tag"></i> ${this.getTypeIcon(material.type)} ${material.type}
+                                        </small>
+                                        <small class="me-3">
+                                            <i class="fas fa-download"></i> ${material.downloads || 0} indirme
+                                        </small>
+                                        <small>
+                                            <i class="fas fa-calendar"></i> ${this.formatDate(material.createdAt)}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="btn-group btn-group-sm ms-3">
+                                    <button class="btn btn-outline-primary" onclick="app.openMaterial('${material.id}')" title="Aç">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="app.editMaterial('${material.id}')" title="Düzenle">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="app.deleteMaterial('${material.id}')" title="Sil">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            filterMaterials() {
+                const search = document.getElementById('materialSearch').value.toLowerCase();
+                const courseFilter = document.getElementById('materialCourseFilter').value;
+                const typeFilter = document.getElementById('materialTypeFilter').value;
+                
+                let filtered = this.materials.filter(material => {
+                    const matchesSearch = material.name.toLowerCase().includes(search) || 
+                                        material.description.toLowerCase().includes(search);
+                    const matchesCourse = !courseFilter || material.courseId === courseFilter;
+                    const matchesType = !typeFilter || material.type === typeFilter;
+                    
+                    return matchesSearch && matchesCourse && matchesType;
+                });
+                
+                this.renderMaterials(filtered);
+            }
+
+            updateMaterialFilters() {
+                const courseSelect = document.getElementById('materialCourseFilter');
+                const materialCourseSelect = document.getElementById('materialCourse');
+                
+                const courseOptions = this.courses.map(course => 
+                    `<option value="${course.id}">${course.name}</option>`
+                ).join('');
+                
+                courseSelect.innerHTML = '<option value="">Tüm Dersler</option>' + courseOptions;
+                materialCourseSelect.innerHTML = '<option value="">Ders Seçin</option>' + courseOptions;
+            }
+
+            saveMaterial() {
+                const material = {
+                    id: this.currentMaterialId || this.generateId(),
+                    name: document.getElementById('materialName').value,
+                    courseId: document.getElementById('materialCourse').value,
+                    type: document.getElementById('materialType').value,
+                    url: document.getElementById('materialUrl').value,
+                    description: document.getElementById('materialDescription').value,
+                    downloads: this.currentMaterialId ? this.materials.find(m => m.id === this.currentMaterialId).downloads : 0,
+                    createdAt: this.currentMaterialId ? this.materials.find(m => m.id === this.currentMaterialId).createdAt : new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (!material.name || !material.courseId || !material.type || !material.url) {
+                    this.showAlert('Tüm zorunlu alanları doldurunuz!', 'danger');
+                    return;
+                }
+
+                if (this.currentMaterialId) {
+                    const index = this.materials.findIndex(m => m.id === this.currentMaterialId);
+                    this.materials[index] = material;
+                    this.showAlert('Materyal başarıyla güncellendi!', 'success');
+                } else {
+                    this.materials.push(material);
+                    this.showAlert('Materyal başarıyla eklendi!', 'success');
+                }
+
+                this.saveMaterials();
+                this.loadMaterials();
+                this.updateStats();
+                this.resetMaterialForm();
+                bootstrap.Modal.getInstance(document.getElementById('materialModal')).hide();
+            }
+
+            editMaterial(materialId) {
+                const material = this.materials.find(m => m.id === materialId);
+                if (!material) return;
+
+                this.currentMaterialId = materialId;
+                document.getElementById('materialName').value = material.name;
+                document.getElementById('materialCourse').value = material.courseId;
+                document.getElementById('materialType').value = material.type;
+                document.getElementById('materialUrl').value = material.url;
+                document.getElementById('materialDescription').value = material.description || '';
+
+                new bootstrap.Modal(document.getElementById('materialModal')).show();
+            }
+
+            deleteMaterial(materialId) {
+                if (!confirm('Bu materyali silmek istediğinizden emin misiniz?')) return;
+
+                this.materials = this.materials.filter(m => m.id !== materialId);
+                this.saveMaterials();
+                this.loadMaterials();
+                this.updateStats();
+                this.showAlert('Materyal başarıyla silindi!', 'success');
+            }
+
+            openMaterial(materialId) {
+                const material = this.materials.find(m => m.id === materialId);
+                if (!material) return;
+
+                // Increment download count
+                material.downloads = (material.downloads || 0) + 1;
+                this.saveMaterials();
+                this.loadMaterials();
+                this.updateStats();
+
+                // Open URL in new tab
+                window.open(material.url, '_blank');
+            }
+
+            resetMaterialForm() {
+                this.currentMaterialId = null;
+                document.getElementById('materialForm').reset();
+            }
+
+            // Settings Methods
+            loadSettings() {
+                document.getElementById('themeSelect').value = this.settings.theme;
+                document.getElementById('itemsPerPage').value = this.settings.itemsPerPage;
+            }
+
+            changeTheme(theme) {
+                this.settings.theme = theme;
+                this.saveSettings();
+                this.applyTheme();
+            }
+
+            toggleTheme() {
+                const newTheme = this.settings.theme === 'light' ? 'dark' : 'light';
+                this.changeTheme(newTheme);
+            }
+
+            applyTheme() {
+                document.body.setAttribute('data-theme', this.settings.theme);
+                const themeIcon = document.querySelector('#themeToggle i');
+                themeIcon.className = this.settings.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+                
+                if (this.settings.theme === 'dark') {
+                    document.body.style.backgroundColor = '#1a1a1a';
+                    document.body.style.color = '#ffffff';
+                } else {
+                    document.body.style.backgroundColor = '#f8f9fa';
+                    document.body.style.color = '#333333';
+                }
+            }
+
+            exportData() {
+                const data = {
+                    courses: this.courses,
+                    materials: this.materials,
+                    settings: this.settings,
+                    exportDate: new Date().toISOString()
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `unicourse-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.showAlert('Veriler başarıyla dışa aktarıldı!', 'success');
+            }
+
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (data.courses && data.materials) {
+                                this.courses = data.courses;
+                                this.materials = data.materials;
+                                this.settings = data.settings || this.settings;
+                                
+                                this.saveCourses();
+                                this.saveMaterials();
+                                this.saveSettings();
+                                
+                                this.loadDashboard();
+                                this.updateStats();
+                                this.applyTheme();
+                                
+                                this.showAlert('Veriler başarıyla içe aktarıldı!', 'success');
+                            } else {
+                                this.showAlert('Geçersiz dosya formatı!', 'danger');
+                            }
+                        } catch (error) {
+                            this.showAlert('Dosya okuma hatası!', 'danger');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+
+            clearAllData() {
+                if (!confirm('Tüm verileri silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) return;
+
+                this.courses = [];
+                this.materials = [];
+                
+                this.saveCourses();
+                this.saveMaterials();
+                
+                this.loadDashboard();
+                this.updateStats();
+                
+                this.showAlert('Tüm veriler temizlendi!', 'success');
+            }
+
+            // Utility Methods
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+
+            formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('tr-TR');
+            }
+
+            getTypeIcon(type) {
+                const icons = {
+                    pdf: '<i class="fas fa-file-pdf text-danger"></i>',
+                    video: '<i class="fas fa-video text-info"></i>',
+                    image: '<i class="fas fa-image text-warning"></i>',
+                    document: '<i class="fas fa-file-word text-primary"></i>',
+                    other: '<i class="fas fa-file text-secondary"></i>'
+                };
+                return icons[type] || icons.other;
+            }
+
+            showAlert(message, type = 'info') {
+                const alertContainer = document.getElementById('alertContainer');
+                const alertId = 'alert-' + Date.now();
+                
+                const alert = document.createElement('div');
+                alert.id = alertId;
+                alert.className = `alert alert-${type} alert-dismissible fade show`;
+                alert.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                alertContainer.appendChild(alert);
+                
+                setTimeout(() => {
+                    const alertElement = document.getElementById(alertId);
+                    if (alertElement) {
+                        alertElement.remove();
+                    }
+                }, 5000);
+            }
+
+            addDemoData() {
+                const demoCourses = [
+                    {
+                        id: this.generateId(),
+                        name: 'Matematik 101',
+                        code: 'MAT101',
+                        category: 'matematik',
+                        description: 'Temel matematik dersi',
+                        instructor: 'Prof. Dr. Ahmet Yılmaz',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: this.generateId(),
+                        name: 'Fizik Temelleri',
+                        code: 'FIZ100',
+                        category: 'fizik',
+                        description: 'Fizik biliminin temel konuları',
+                        instructor: 'Dr. Fatma Kaya',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+
+                this.courses = demoCourses;
+                this.saveCourses();
+
+                const demoMaterials = [
+                    {
+                        id: this.generateId(),
+                        name: 'Calculus Ders Notları',
+                        courseId: demoCourses[0].id,
+                        type: 'pdf',
+                        url: 'https://example.com/calculus-notes.pdf',
+                        description: 'Calculus konusunda detaylı ders notları',
+                        downloads: 15,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    },
+                    {
+                        id: this.generateId(),
+                        name: 'Newton Yasaları Video',
+                        courseId: demoCourses[1].id,
+                        type: 'video',
+                        url: 'https://example.com/newton-laws.mp4',
+                        description: 'Newton yasalarını açıklayan eğitim videosu',
+                        downloads: 23,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }
+                ];
+
+                this.materials = demoMaterials;
+                this.saveMaterials();
+            }
+
+            // Storage Methods
+            saveCourses() {
+                localStorage.setItem('unicourse_courses', JSON.stringify(this.courses));
+            }
+
+            saveMaterials() {
+                localStorage.setItem('unicourse_materials', JSON.stringify(this.materials));
+            }
+
+            saveSettings() {
+                localStorage.setItem('unicourse_settings', JSON.stringify(this.settings));
+            }
+        }
+
+        // Initialize the application 
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new UniCourseApp();
+        });
+
+        // Modal reset handlers
+        document.getElementById('courseModal').addEventListener('hidden.bs.modal', () => {
+            app.resetCourseForm();
+        });
+
+        document.getElementById('materialModal').addEventListener('hidden.bs.modal', () => {
+            app.resetMaterialForm();
+        });
+    </script>
 </body>
 </html>
+                        

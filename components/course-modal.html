@@ -1,0 +1,48 @@
+<!-- Course Modal -->
+<div class="modal fade" id="courseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ders Ekle/Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="courseForm">
+                    <div class="mb-3">
+                        <label class="form-label">Ders Adı *</label>
+                        <input type="text" class="form-control" id="courseName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ders Kodu</label>
+                        <input type="text" class="form-control" id="courseCode">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kategori *</label>
+                        <select class="form-control" id="courseCategory" required>
+                            <option value="">Kategori Seçin</option>
+                            <option value="matematik">Matematik</option>
+                            <option value="fizik">Fizik</option>
+                            <option value="kimya">Kimya</option>
+                            <option value="biyoloji">Biyoloji</option>
+                            <option value="edebiyat">Edebiyat</option>
+                            <option value="tarih">Tarih</option>
+                            <option value="diger">Diğer</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <textarea class="form-control" id="courseDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Öğretmen</label>
+                        <input type="text" class="form-control" id="courseInstructor">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="saveCourse">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>

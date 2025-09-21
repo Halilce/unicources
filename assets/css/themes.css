@@ -1,11 +1,73 @@
-/* Light Theme */
+/* UniCourse - Tema Dosyası */
+
+/* Light Theme (Default) */
 [data-theme="light"] {
     --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
     --text-primary: #333333;
+    --text-secondary: #6c757d;
+    --border-color: #e0e0e0;
 }
 
 /* Dark Theme */
 [data-theme="dark"] {
     --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
     --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --border-color: #444444;
+}
+
+[data-theme="dark"] body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .navbar {
+    background: #2d2d2d !important;
+    border-bottom: 1px solid #444444;
+}
+
+[data-theme="dark"] .card {
+    background-color: #2d2d2d;
+    border-color: #444444;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .search-box {
+    background: #2d2d2d;
+    border: 1px solid #444444;
+}
+
+[data-theme="dark"] .material-item {
+    background: #2d2d2d;
+    border-color: #444444;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .form-control {
+    background-color: #2d2d2d;
+    border-color: #444444;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .form-control:focus {
+    background-color: #2d2d2d;
+    border-color: #667eea;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background-color: #444444;
+    border-color: #444444;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #cccccc !important;
 }

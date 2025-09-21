@@ -1,0 +1,45 @@
+<!-- Courses Section -->
+<div id="courses-section" class="content-section" style="display: none;">
+    <div class="content-area">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-book text-primary"></i>
+                        Dersler
+                    </h2>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#courseModal">
+                        <i class="fas fa-plus"></i>
+                        Yeni Ders Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-box">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="text" class="form-control" id="courseSearch" placeholder="Ders ara...">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="courseFilter">
+                        <option value="">Tüm Kategoriler</option>
+                        <option value="matematik">Matematik</option>
+                        <option value="fizik">Fizik</option>
+                        <option value="kimya">Kimya</option>
+                        <option value="biyoloji">Biyoloji</option>
+                        <option value="edebiyat">Edebiyat</option>
+                        <option value="tarih">Tarih</option>
+                        <option value="diger">Diğer</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses List -->
+        <div class="row" id="coursesList">
+            <!-- Courses will be dynamically loaded here -->
+        </div>
+    </div>
+</div>

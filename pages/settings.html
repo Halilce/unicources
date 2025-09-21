@@ -1,0 +1,62 @@
+<!-- Settings Section -->
+<div id="settings-section" class="content-section" style="display: none;">
+    <div class="content-area">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">
+                    <i class="fas fa-cog text-primary"></i>
+                    Ayarlar
+                </h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Genel Ayarlar</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tema</label>
+                            <select class="form-control" id="themeSelect">
+                                <option value="light">Açık Tema</option>
+                                <option value="dark">Koyu Tema</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sayfa Başına Öğe Sayısı</label>
+                            <select class="form-control" id="itemsPerPage">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Veri Yönetimi</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-warning mb-2 w-100" id="exportData">
+                            <i class="fas fa-download"></i>
+                            Verileri Dışa Aktar
+                        </button>
+                        <button class="btn btn-info mb-2 w-100" id="importData">
+                            <i class="fas fa-upload"></i>
+                            Verileri İçe Aktar
+                        </button>
+                        <button class="btn btn-danger w-100" id="clearAllData">
+                            <i class="fas fa-trash"></i>
+                            Tüm Verileri Temizle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

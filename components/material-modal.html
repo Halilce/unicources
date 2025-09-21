@@ -1,0 +1,49 @@
+<!-- Material Modal -->
+<div class="modal fade" id="materialModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Materyal Ekle/Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="materialForm">
+                    <div class="mb-3">
+                        <label class="form-label">Materyal Adı *</label>
+                        <input type="text" class="form-control" id="materialName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ders *</label>
+                        <select class="form-control" id="materialCourse" required>
+                            <option value="">Ders Seçin</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tür *</label>
+                        <select class="form-control" id="materialType" required>
+                            <option value="">Tür Seçin</option>
+                            <option value="pdf">PDF</option>
+                            <option value="video">Video</option>
+                            <option value="image">Resim</option>
+                            <option value="document">Döküman</option>
+                            <option value="other">Diğer</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Dosya URL'i *</label>
+                        <input type="url" class="form-control" id="materialUrl" placeholder="https://..." required>
+                        <small class="form-text text-muted">Google Drive, Dropbox veya başka bir dosya paylaşım linkini giriniz.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <textarea class="form-control" id="materialDescription" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="saveMaterial">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>

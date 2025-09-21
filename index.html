@@ -16,6 +16,14 @@
     <link rel="stylesheet" href="assets/css/themes.css">
 </head>
 <body>
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggleBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Include Header -->
     <div id="header-placeholder"></div>
     
@@ -55,6 +63,9 @@
             await loadComponents();
             // Initialize app after components are loaded
             window.app = new UniCourseApp();
+            
+            // Setup sidebar toggle after components load
+            setupSidebarToggle();
         });
 
         async function loadComponents() {
@@ -95,6 +106,82 @@
                 document.getElementById('modals-placeholder').innerHTML = courseModal + materialModal;
             } catch (error) {
                 console.error('Error loading modals:', error);
+            }
+        }
+
+        function setupSidebarToggle() {
+            const toggleBtn = document.getElementById('sidebarToggleBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            let sidebarOpen = true;
+
+            // Toggle button click
+            toggleBtn.addEventListener('click', () => {
+                sidebarOpen = !sidebarOpen;
+                toggleSidebar(sidebarOpen);
+            });
+
+            // Overlay click (mobile)
+            overlay.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebarOpen = false;
+                    toggleSidebar(false);
+                }
+            });
+
+            // Handle responsive behavior
+            window.addEventListener('resize', () => {
+                if (window.innerWidth <= 768) {
+                    // Mobile: Always collapsed initially
+                    sidebarOpen = false;
+                    toggleSidebar(false, false);
+                } else {
+                    // Desktop: Open by default
+                    sidebarOpen = true;
+                    toggleSidebar(true, false);
+                }
+            });
+
+            function toggleSidebar(open, animate = true) {
+                if (!animate) {
+                    sidebar.style.transition = 'none';
+                    mainContent.style.transition = 'none';
+                    toggleBtn.style.transition = 'none';
+                }
+
+                if (open) {
+                    // Open sidebar
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('full-width');
+                    toggleBtn.classList.add('moved');
+                    overlay.classList.remove('active');
+                    toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    // Close sidebar
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('full-width');
+                    toggleBtn.classList.remove('moved');
+                    
+                    if (window.innerWidth <= 768) {
+                        overlay.classList.remove('active');
+                    }
+                    
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+
+                // Re-enable transitions
+                setTimeout(() => {
+                    sidebar.style.transition = '';
+                    mainContent.style.transition = '';
+                    toggleBtn.style.transition = '';
+                }, 50);
+            }
+
+            // Initialize based on screen size
+            if (window.innerWidth <= 768) {
+                sidebarOpen = false;
+                toggleSidebar(false, false);
             }
         }
     </script>

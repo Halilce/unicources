@@ -24,13 +24,6 @@ class UIManager {
             }
         });
 
-        // Mobile sidebar toggle
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('#sidebarToggle')) {
-                this.toggleMobileSidebar();
-            }
-        });
-
         // Theme toggle
         document.addEventListener('click', (e) => {
             if (e.target.closest('#themeToggle')) {
@@ -93,11 +86,6 @@ class UIManager {
 
         // Add active class to current link
         activeLink.classList.add('active');
-    }
-
-    toggleMobileSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('show');
     }
 
     // Theme Management

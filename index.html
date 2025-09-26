@@ -3,187 +3,977 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniCourse - Ders Materyalleri Yönetimi</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/themes.css">
+    <title>OneDrive PDF Görüntüleyici</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0 0 20px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-bar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            border-radius: 0;
+        }
+
+        .menu-btn:hover {
+            background: #e9ecef;
+        }
+
+        .dropdown:hover .menu-btn {
+            background: #e9ecef;
+        }
+
+        .file-input-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 20px 15px 20px;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .onedrive-url {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .onedrive-url:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .load-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .load-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 0 20px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn {
+            padding: 8px 12px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .control-btn:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .zoom-select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .pdf-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: auto;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pdf-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+            border-radius: 0;
+            z-index: 1000;
+            background: #2c2c2c;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        #pdfCanvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .pdf-container.fullscreen #pdfCanvas {
+            width: calc(100vw - 20px) !important;
+            height: auto !important;
+            max-width: calc(100vw - 20px) !important;
+            max-height: calc(100vh - 20px) !important;
+            object-fit: contain;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .pdf-container.fullscreen .fullscreen-btn {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-color: #666;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .error {
+            display: none;
+            background: #ffe6e6;
+            color: #d63384;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #f5c2c7;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .info-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .action-btn {
+            padding: 10px 18px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-btn::after {
+            content: '';
+            margin-left: 8px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 280px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid #dee2e6;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-item {
+            position: relative;
+        }
+
+        .dropdown-submenu > span {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            font-weight: 500;
+            background: white;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-size: 14px;
+        }
+
+        .dropdown-submenu:hover > span {
+            background: #f8f9fa;
+        }
+
+        .dropdown-submenu-content {
+            display: none;
+            background: white;
+        }
+
+        .dropdown-submenu:hover .dropdown-submenu-content {
+            display: block;
+        }
+
+        .dropdown-link {
+            display: block;
+            width: 100%;
+            padding: 10px 25px;
+            background: none;
+            border: none;
+            text-align: left;
+            color: #555;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .dropdown-link:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .menu-bar {
+                padding: 0;
+            }
+
+            .menu-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+
+            .file-input-section {
+                flex-direction: column;
+                align-items: stretch;
+                margin: 15px;
+            }
+
+            .onedrive-url {
+                min-width: auto;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+                margin: 0 15px;
+            }
+
+            .control-group {
+                justify-content: center;
+            }
+
+            .dropdown-content {
+                min-width: 250px;
+                left: 0;
+                right: auto;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Sidebar Toggle Button -->
-    <button class="sidebar-toggle" id="sidebarToggleBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+    <div class="header">
+        <div class="menu-bar">
+            <div class="dropdown">
+                <button id="lessonsBtn" class="menu-btn dropdown-btn">📚 Dersler</button>
+                <div class="dropdown-content" id="lessonsMenu">
+                    <div class="dropdown-item dropdown-submenu">
+                        <span>💻 Bilgi Teknolojilerine Giriş</span>
+                        <div class="dropdown-submenu-content">
+                            <button class="dropdown-link" data-url="https://github.com/Halilce/unicources/blob/main/assets/uploads/KBU%20-%20Bilgi%20Teknolojilerine%20Giri%C5%9F%20-%201.Hafta.pdf">📖 1. Hafta</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- Sidebar Overlay for mobile -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="file-input-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" class="file-input" accept=".pdf">
+                <label for="fileInput" class="file-input-label">📁 PDF Dosyası Seç</label>
+            </div>
+            <input type="text" id="onedriveUrl" class="onedrive-url" placeholder="OneDrive PDF bağlantısını buraya yapıştırın...">
+            <button id="loadFromUrl" class="load-btn">🌐 URL'den Yükle</button>
+        </div>
 
-    <!-- Include Header -->
-    <div id="header-placeholder"></div>
-    
-    <!-- Include Sidebar -->
-    <div id="sidebar-placeholder"></div>
+        <div class="controls">
+            <div class="control-group">
+                <button id="prevPage" class="control-btn">⬅️ Önceki</button>
+                <input type="number" id="pageInput" class="page-input" min="1" value="1">
+                <span>/</span>
+                <span id="totalPages">0</span>
+                <button id="nextPage" class="control-btn">➡️ Sonraki</button>
+            </div>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Include Pages -->
-        <div id="dashboard-placeholder"></div>
-        <div id="courses-placeholder"></div>
-        <div id="materials-placeholder"></div>
-        <div id="settings-placeholder"></div>
+            <div class="control-group">
+                <label>Zoom:</label>
+                <select id="zoomSelect" class="zoom-select">
+                    <option value="0.5">50%</option>
+                    <option value="0.75">75%</option>
+                    <option value="1" selected>100%</option>
+                    <option value="1.25">125%</option>
+                    <option value="1.5">150%</option>
+                    <option value="2">200%</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="screenshot" class="action-btn">📷 Ekran Görüntüsü</button>
+                <button id="openInTab" class="action-btn">🔗 Yeni Sekmede Aç</button>
+            </div>
+        </div>
+
+        <div class="error" id="errorMsg"></div>
     </div>
 
-    <!-- Include Footer -->
-    <div id="footer-placeholder"></div>
+    <div class="main-content">
+        <div class="loading" id="loading">
+            <div>📄 PDF yükleniyor...</div>
+        </div>
 
-    <!-- Modals -->
-    <div id="modals-placeholder"></div>
-
-    <!-- Alert Container -->
-    <div id="alertContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/storage.js"></script>
-    <script src="assets/js/ui.js"></script>
-    <script src="assets/js/app.js"></script>
+        <div class="pdf-container" id="pdfContainer" style="display: none;">
+            <button class="fullscreen-btn" id="fullscreenBtn" title="Tam Ekran">⛶</button>
+            <canvas id="pdfCanvas"></canvas>
+        </div>
+    </div>
 
     <script>
-        // Load all components when page loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadComponents();
-            // Initialize app after components are loaded
-            window.app = new UniCourseApp();
-            
-            // Setup sidebar toggle after components load
-            setupSidebarToggle();
-        });
-
-        async function loadComponents() {
-            try {
-                // Load all components
-                await Promise.all([
-                    loadComponent('components/header.html', 'header-placeholder'),
-                    loadComponent('components/sidebar.html', 'sidebar-placeholder'),
-                    loadComponent('pages/dashboard.html', 'dashboard-placeholder'),
-                    loadComponent('pages/courses.html', 'courses-placeholder'),
-                    loadComponent('pages/materials.html', 'materials-placeholder'),
-                    loadComponent('pages/settings.html', 'settings-placeholder'),
-                    loadComponent('components/footer.html', 'footer-placeholder'),
-                    loadModals()
-                ]);
-            } catch (error) {
-                console.error('Error loading components:', error);
-            }
-        }
-
-        async function loadComponent(url, placeholderId) {
-            try {
-                const response = await fetch(url);
-                const html = await response.text();
-                document.getElementById(placeholderId).innerHTML = html;
-            } catch (error) {
-                console.error(`Error loading ${url}:`, error);
-            }
-        }
-
-        async function loadModals() {
-            try {
-                const [courseModal, materialModal] = await Promise.all([
-                    fetch('components/course-modal.html').then(r => r.text()),
-                    fetch('components/material-modal.html').then(r => r.text())
-                ]);
+        class PDFViewer {
+            constructor() {
+                this.pdfDoc = null;
+                this.currentPage = 1;
+                this.scale = 1;
+                this.canvas = document.getElementById('pdfCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.isFullscreen = false;
+                this.originalPdfData = null;
                 
-                document.getElementById('modals-placeholder').innerHTML = courseModal + materialModal;
-            } catch (error) {
-                console.error('Error loading modals:', error);
+                this.initEventListeners();
+                
+                // PDF.js worker ayarı
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
-        }
 
-        function setupSidebarToggle() {
-            const toggleBtn = document.getElementById('sidebarToggleBtn');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const overlay = document.getElementById('sidebarOverlay');
-            let sidebarOpen = true;
+            initEventListeners() {
+                document.getElementById('fileInput').addEventListener('change', (e) => {
+                    if (e.target.files[0]) {
+                        this.loadPDFFromFile(e.target.files[0]);
+                    }
+                });
 
-            // Toggle button click
-            toggleBtn.addEventListener('click', () => {
-                sidebarOpen = !sidebarOpen;
-                toggleSidebar(sidebarOpen);
-            });
+                document.getElementById('loadFromUrl').addEventListener('click', () => {
+                    const url = document.getElementById('onedriveUrl').value.trim();
+                    if (url) {
+                        this.loadPDFFromURL(url);
+                    }
+                });
 
-            // Overlay click (mobile)
-            overlay.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    sidebarOpen = false;
-                    toggleSidebar(false);
-                }
-            });
+                document.getElementById('prevPage').addEventListener('click', () => {
+                    this.goToPreviousPage();
+                });
 
-            // Handle responsive behavior
-            window.addEventListener('resize', () => {
-                if (window.innerWidth <= 768) {
-                    // Mobile: Always collapsed initially
-                    sidebarOpen = false;
-                    toggleSidebar(false, false);
+                document.getElementById('nextPage').addEventListener('click', () => {
+                    this.goToNextPage();
+                });
+
+                document.getElementById('pageInput').addEventListener('change', (e) => {
+                    const pageNum = parseInt(e.target.value);
+                    if (this.pdfDoc && pageNum >= 1 && pageNum <= this.pdfDoc.numPages) {
+                        this.currentPage = pageNum;
+                        this.renderPage();
+                        this.updateControls();
+                    }
+                });
+
+                document.getElementById('zoomSelect').addEventListener('change', (e) => {
+                    this.scale = parseFloat(e.target.value);
+                    if (this.pdfDoc) {
+                        this.renderPage();
+                    }
+                });
+
+                document.getElementById('screenshot').addEventListener('click', () => {
+                    this.takeScreenshot();
+                });
+
+                document.getElementById('openInTab').addEventListener('click', () => {
+                    this.openInNewTab();
+                });
+
+                // Ders linklerine event listener ekle
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('dropdown-link')) {
+                        const url = e.target.getAttribute('data-url');
+                        if (url) {
+                            this.loadPDFFromURL(url);
+                        }
+                    }
+                });
+
+                document.getElementById('fullscreenBtn').addEventListener('click', () => {
+                    this.toggleFullscreen();
+                });
+
+                // ESC tuşu ile tam ekrandan çık
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.isFullscreen) {
+                        e.preventDefault();
+                        this.toggleFullscreen();
+                        return;
+                    }
+
+                    if (!this.pdfDoc) return;
+
+                    // Klavye kısayolları
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            this.goToPreviousPage();
+                            break;
+                        case 'ArrowRight':
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            this.goToNextPage();
+                            break;
+                        case 'f':
+                        case 'F':
+                            if (!e.ctrlKey && !e.metaKey) {
+                                e.preventDefault();
+                                this.toggleFullscreen();
+                            }
+                            break;
+                    }
+                });
+            }
+
+            showLoading(show = true) {
+                document.getElementById('loading').classList.toggle('show', show);
+                document.getElementById('pdfContainer').style.display = show ? 'none' : 'block';
+            }
+
+            showError(message, type = 'error') {
+                const errorEl = document.getElementById('errorMsg');
+                errorEl.textContent = message;
+                
+                // Hata tipine göre stil ayarla
+                if (type === 'info') {
+                    errorEl.style.background = '#e6f3ff';
+                    errorEl.style.color = '#0066cc';
+                    errorEl.style.borderColor = '#b3d9ff';
                 } else {
-                    // Desktop: Open by default
-                    sidebarOpen = true;
-                    toggleSidebar(true, false);
+                    errorEl.style.background = '#ffe6e6';
+                    errorEl.style.color = '#d63384';
+                    errorEl.style.borderColor = '#f5c2c7';
                 }
-            });
+                
+                errorEl.classList.add('show');
+                setTimeout(() => errorEl.classList.remove('show'), 5000);
+            }
 
-            function toggleSidebar(open, animate = true) {
-                if (!animate) {
-                    sidebar.style.transition = 'none';
-                    mainContent.style.transition = 'none';
-                    toggleBtn.style.transition = 'none';
+            async loadPDFFromFile(file) {
+                try {
+                    this.showLoading(true);
+                    const arrayBuffer = await file.arrayBuffer();
+                    this.originalPdfData = arrayBuffer; // Orijinal veriyi sakla
+                    await this.loadPDF(arrayBuffer);
+                } catch (error) {
+                    this.showError('Dosya yüklenirken hata oluştu: ' + error.message);
+                    this.showLoading(false);
                 }
+            }
 
-                if (open) {
-                    // Open sidebar
-                    sidebar.classList.remove('collapsed');
-                    mainContent.classList.remove('full-width');
-                    toggleBtn.classList.add('moved');
-                    overlay.classList.remove('active');
-                    toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-                } else {
-                    // Close sidebar
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('full-width');
-                    toggleBtn.classList.remove('moved');
+            async loadPDFFromURL(url) {
+                try {
+                    this.showLoading(true);
                     
-                    if (window.innerWidth <= 768) {
-                        overlay.classList.remove('active');
+                    let downloadUrl = this.processOneDriveUrl(url);
+                    
+                    // CORS proxy kullanarak yükleme dene
+                    const proxyUrls = [
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(downloadUrl)}`,
+                        `https://corsproxy.io/?${encodeURIComponent(downloadUrl)}`,
+                        downloadUrl // Direkt deneme
+                    ];
+                    
+                    let lastError = null;
+                    let success = false;
+                    
+                    for (const proxyUrl of proxyUrls) {
+                        try {
+                            console.log('Denenen URL:', proxyUrl);
+                            const response = await fetch(proxyUrl, {
+                                method: 'GET',
+                                mode: 'cors',
+                                headers: {
+                                    'Accept': 'application/pdf,*/*',
+                                }
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                            }
+                            
+                            const arrayBuffer = await response.arrayBuffer();
+                            
+                            // PDF olup olmadığını kontrol et
+                            const uint8Array = new Uint8Array(arrayBuffer);
+                            const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 4));
+                            if (pdfHeader !== '%PDF') {
+                                throw new Error('Geçersiz PDF dosyası');
+                            }
+                            
+                            this.originalPdfData = arrayBuffer; // Orijinal veriyi sakla
+                            await this.loadPDF(arrayBuffer);
+                            success = true;
+                            break;
+                        } catch (error) {
+                            console.log('URL deneme başarısız:', error.message);
+                            lastError = error;
+                            continue;
+                        }
                     }
                     
-                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    if (!success) {
+                        throw lastError || new Error('Tüm yükleme yöntemleri başarısız oldu');
+                    }
+                    
+                } catch (error) {
+                    console.error('PDF yükleme hatası:', error);
+                    this.showError(`URL'den yükleme hatası: ${error.message}. Lütfen OneDrive linkinin herkese açık paylaşıma ayarlandığından emin olun.`);
+                    this.showLoading(false);
+                }
+            }
+
+            processOneDriveUrl(url) {
+                // OneDrive bağlantısını işle
+                if (url.includes('onedrive.live.com')) {
+                    // Paylaşım linkini direkt indirme linkine çevir
+                    if (url.includes('/view?')) {
+                        return url.replace('/view?', '/download?');
+                    } else if (url.includes('?')) {
+                        return url + '&download=1';
+                    } else {
+                        return url + '?download=1';
+                    }
+                } else if (url.includes('1drv.ms')) {
+                    // Kısaltılmış OneDrive linkini işle
+                    return url + (url.includes('?') ? '&download=1' : '?download=1');
+                } else if (url.includes('sharepoint.com')) {
+                    // SharePoint linklerini işle
+                    return url + (url.includes('?') ? '&download=1' : '?download=1');
+                }
+                
+                return url;
+            }
+
+            async loadPDF(source) {
+                try {
+                    this.originalPdfData = source;
+                    this.pdfDoc = await pdfjsLib.getDocument(source).promise;
+                    this.currentPage = 1;
+                    
+                    document.getElementById('totalPages').textContent = this.pdfDoc.numPages;
+                    this.updatePageInput();
+                    this.updateControls();
+                    
+                    await this.renderPage();
+                    this.showLoading(false);
+                } catch (error) {
+                    throw new Error('PDF işlenemedi: ' + error.message);
+                }
+            }
+
+            goToPreviousPage() {
+                if (!this.pdfDoc) {
+                    console.log('PDF yüklenmemiş');
+                    return;
+                }
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    console.log('Önceki sayfaya gidiliyor:', this.currentPage);
+                    this.renderPage();
+                    this.updatePageInput();
+                    this.updateControls();
+                } else {
+                    console.log('Zaten ilk sayfadasınız');
+                }
+            }
+
+            goToNextPage() {
+                if (!this.pdfDoc) {
+                    console.log('PDF yüklenmemiş');
+                    return;
+                }
+                if (this.currentPage < this.pdfDoc.numPages) {
+                    this.currentPage++;
+                    console.log('Sonraki sayfaya gidiliyor:', this.currentPage);
+                    this.renderPage();
+                    this.updatePageInput();
+                    this.updateControls();
+                } else {
+                    console.log('Zaten son sayfadasınız');
+                }
+            }
+
+            toggleFullscreen() {
+                const container = document.getElementById('pdfContainer');
+                const btn = document.getElementById('fullscreenBtn');
+                
+                console.log('Tam ekran toggle çağrıldı, mevcut durum:', this.isFullscreen);
+                
+                this.isFullscreen = !this.isFullscreen;
+                
+                if (this.isFullscreen) {
+                    container.classList.add('fullscreen');
+                    btn.innerHTML = '✕';
+                    btn.title = 'Tam Ekrandan Çık (ESC)';
+                    document.body.style.overflow = 'hidden';
+                    console.log('Tam ekran modu açıldı');
+                } else {
+                    container.classList.remove('fullscreen');
+                    btn.innerHTML = '⛶';
+                    btn.title = 'Tam Ekran (F)';
+                    document.body.style.overflow = 'auto';
+                    console.log('Tam ekran modundan çıkıldı');
+                }
+                
+                // Canvas boyutunu yeniden ayarla ve window resize event'i ekle
+                if (this.pdfDoc) {
+                    setTimeout(() => {
+                        this.renderPage();
+                    }, 100);
+                }
+                
+                // Tam ekran modunda window resize listener ekle/kaldır
+                if (this.isFullscreen) {
+                    this.resizeListener = () => {
+                        if (this.pdfDoc && this.isFullscreen) {
+                            this.renderPage();
+                        }
+                    };
+                    window.addEventListener('resize', this.resizeListener);
+                } else if (this.resizeListener) {
+                    window.removeEventListener('resize', this.resizeListener);
+                    this.resizeListener = null;
+                }
+            }
+
+            async renderPage() {
+                if (!this.pdfDoc) {
+                    console.log('PDF document bulunamadı');
+                    return;
                 }
 
-                // Re-enable transitions
-                setTimeout(() => {
-                    sidebar.style.transition = '';
-                    mainContent.style.transition = '';
-                    toggleBtn.style.transition = '';
-                }, 50);
+                try {
+                    console.log(`Sayfa render ediliyor: ${this.currentPage}/${this.pdfDoc.numPages}, Scale: ${this.scale}, Fullscreen: ${this.isFullscreen}`);
+                    
+                    const page = await this.pdfDoc.getPage(this.currentPage);
+                    let viewport;
+                    
+                    if (this.isFullscreen) {
+                        // Tam ekran modunda ekran boyutuna göre ölçeklendirme
+                        const container = document.getElementById('pdfContainer');
+                        const containerWidth = window.innerWidth - 20; // Padding için
+                        const containerHeight = window.innerHeight - 20;
+                        
+                        // Sayfa oranını koru ve ekrana sığdır
+                        const tempViewport = page.getViewport({ scale: 1 });
+                        const scaleX = containerWidth / tempViewport.width;
+                        const scaleY = containerHeight / tempViewport.height;
+                        const optimalScale = Math.min(scaleX, scaleY);
+                        
+                        viewport = page.getViewport({ scale: optimalScale });
+                        console.log(`Tam ekran optimal scale: ${optimalScale}`);
+                    } else {
+                        // Normal modda kullanıcının seçtiği scale
+                        viewport = page.getViewport({ scale: this.scale });
+                    }
+                    
+                    // Canvas boyutlarını ayarla
+                    this.canvas.width = viewport.width;
+                    this.canvas.height = viewport.height;
+                    
+                    // Canvas stilini de güncelle
+                    if (this.isFullscreen) {
+                        this.canvas.style.width = '100%';
+                        this.canvas.style.height = 'auto';
+                        this.canvas.style.maxWidth = 'calc(100vw - 20px)';
+                        this.canvas.style.maxHeight = 'calc(100vh - 20px)';
+                    } else {
+                        this.canvas.style.width = viewport.width + 'px';
+                        this.canvas.style.height = viewport.height + 'px';
+                        this.canvas.style.maxWidth = '100%';
+                        this.canvas.style.maxHeight = '100%';
+                    }
+                    
+                    const renderContext = {
+                        canvasContext: this.ctx,
+                        viewport: viewport
+                    };
+                    
+                    // Önceki render işlemini iptal et
+                    if (this.renderTask) {
+                        this.renderTask.cancel();
+                    }
+                    
+                    this.renderTask = page.render(renderContext);
+                    await this.renderTask.promise;
+                    
+                    console.log('Sayfa başarıyla render edildi');
+                } catch (error) {
+                    if (error.name !== 'RenderingCancelledException') {
+                        console.error('Render hatası:', error);
+                        this.showError('Sayfa renderlenirken hata oluştu: ' + error.message);
+                    }
+                }
             }
 
-            // Initialize based on screen size
-            if (window.innerWidth <= 768) {
-                sidebarOpen = false;
-                toggleSidebar(false, false);
+            updatePageInput() {
+                document.getElementById('pageInput').value = this.currentPage;
+            }
+
+            updateControls() {
+                if (!this.pdfDoc) return;
+                
+                const prevBtn = document.getElementById('prevPage');
+                const nextBtn = document.getElementById('nextPage');
+                
+                prevBtn.disabled = this.currentPage <= 1;
+                nextBtn.disabled = this.currentPage >= this.pdfDoc.numPages;
+                
+                document.getElementById('pageInput').max = this.pdfDoc.numPages;
+            }
+
+            takeScreenshot() {
+                if (!this.canvas) {
+                    this.showError('Ekran görüntüsü alınamadı!');
+                    return;
+                }
+
+                try {
+                    // Canvas'ı resim olarak dışa aktar
+                    this.canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `pdf-sayfa-${this.currentPage}.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 'image/png');
+                } catch (error) {
+                    this.showError('Ekran görüntüsü alınırken hata oluştu!');
+                }
+            }
+
+            openInNewTab() {
+                if (!this.originalPdfData) {
+                    this.showError('Açılacak PDF bulunamadı!');
+                    return;
+                }
+
+                try {
+                    console.log('PDF yeni sekmede açılıyor...');
+                    
+                    // PDF blob oluştur
+                    const blob = new Blob([this.originalPdfData], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Yeni sekmede aç
+                    const newTab = window.open(url, '_blank');
+                    
+                    if (newTab) {
+                        // Sekme kapatılma durumunu takip et
+                        const checkClosed = setInterval(() => {
+                            if (newTab.closed) {
+                                clearInterval(checkClosed);
+                                URL.revokeObjectURL(url);
+                                console.log('Yeni sekme kapatıldı, URL temizlendi');
+                            }
+                        }, 1000);
+                        
+                        // 5 dakika sonra zorla temizle
+                        setTimeout(() => {
+                            clearInterval(checkClosed);
+                            URL.revokeObjectURL(url);
+                        }, 300000);
+                        
+                        console.log('PDF yeni sekmede açıldı');
+                    } else {
+                        this.showError('Popup engellendiği için yeni sekme açılamadı. Tarayıcı ayarlarınızı kontrol edin.');
+                        URL.revokeObjectURL(url);
+                    }
+                    
+                } catch (error) {
+                    console.error('Yeni sekme açma hatası:', error);
+                    this.showError('PDF yeni sekmede açılırken hata oluştu: ' + error.message);
+                }
             }
         }
+
+        // Uygulamayı başlat
+        document.addEventListener('DOMContentLoaded', () => {
+            new PDFViewer();
+        });
     </script>
 </body>
 </html>

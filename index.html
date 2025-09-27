@@ -437,7 +437,9 @@
                     <div class="dropdown-item dropdown-submenu">
                         <span>💻 Bilgi Teknolojilerine Giriş</span>
                         <div class="dropdown-submenu-content">
-                            <button class="dropdown-link" data-url="https://kalite.yalova.edu.tr/Yonetim/DosyaYonetimi/DosyaIndir/6246">📖 1. Hafta</button>
+                            <button class="dropdown-link" data-url="https://raw.githubusercontent.com/Halilce/unicources/main/assets/uploads/KBU%20-%20Bilgi%20Teknolojilerine%20Giri%C5%9F%20-%201.Hafta.pdf">📖 1. Hafta</button>
+							<button class="dropdown-link" onclick="openInNewTab('https://raw.githubusercontent.com/Halilce/unicources/main/assets/uploads/KBU%20-%20Bilgi%20Teknolojilerine%20Giri%C5%9F%20-%201.Hafta.pdf')"></button>
+
                         </div>
                     </div>
                 </div>
@@ -493,6 +495,12 @@
             <canvas id="pdfCanvas"></canvas>
         </div>
     </div>
+	
+	<script>
+        function openInNewTab(url) {
+            window.open(url, '_blank');
+        }
+    </script>
 
     <script>
         class PDFViewer {
@@ -562,7 +570,7 @@
                     if (e.target.classList.contains('dropdown-link')) {
                         const url = e.target.getAttribute('data-url');
                         if (url) {
-                            this.loadPDFFromURL(url);
+                            this.downloadAndLoadFromLessons(url, e.target.textContent);
                         }
                     }
                 });
@@ -614,7 +622,11 @@
                 errorEl.textContent = message;
                 
                 // Hata tipine göre stil ayarla
-                if (type === 'info') {
+                if (type === 'success') {
+                    errorEl.style.background = '#e6f7e6';
+                    errorEl.style.color = '#28a745';
+                    errorEl.style.borderColor = '#b3e6b3';
+                } else if (type === 'info') {
                     errorEl.style.background = '#e6f3ff';
                     errorEl.style.color = '#0066cc';
                     errorEl.style.borderColor = '#b3d9ff';
@@ -625,7 +637,97 @@
                 }
                 
                 errorEl.classList.add('show');
-                setTimeout(() => errorEl.classList.remove('show'), 5000);
+                
+                // Başarı mesajları daha uzun süre göster
+                const timeout = type === 'success' ? 3000 : 5000;
+                setTimeout(() => errorEl.classList.remove('show'), timeout);
+            }
+
+            async downloadAndLoadFromLessons(url, lessonName) {
+                try {
+                    this.showLoading(true);
+                    console.log(`Ders materyali indiriliyor: ${lessonName}`);
+                    
+                    let downloadUrl = this.processOneDriveUrl(url);
+                    
+                    // Ders materyali için proxy listesi
+                    const proxyUrls = [
+                        downloadUrl, // Direkt deneme
+                        `https://cors-anywhere.herokuapp.com/${downloadUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(downloadUrl)}`,
+                        `https://corsproxy.io/?${encodeURIComponent(downloadUrl)}`,
+                        `https://cors.bridged.cc/${downloadUrl}`,
+                        `https://yacdn.org/proxy/${downloadUrl}`,
+                        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(downloadUrl)}`,
+                        `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(downloadUrl)}`,
+                        `https://thingproxy.freeboard.io/fetch/${downloadUrl}`
+                    ];
+                    
+                    let success = false;
+                    let pdfData = null;
+                    
+                    for (let i = 0; i < proxyUrls.length && !success; i++) {
+                        try {
+                            console.log(`Proxy ${i + 1}/${proxyUrls.length} deneniyor...`);
+                            
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 saniye
+                            
+                            const response = await fetch(proxyUrls[i], {
+                                method: 'GET',
+                                mode: 'cors',
+                                signal: controller.signal,
+                                headers: {
+                                    'Accept': 'application/pdf,application/octet-stream,*/*',
+                                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                                }
+                            });
+                            
+                            clearTimeout(timeoutId);
+                            
+                            if (response.ok) {
+                                pdfData = await response.arrayBuffer();
+                                if (pdfData.byteLength > 0) {
+                                    success = true;
+                                    console.log(`Başarılı! Proxy ${i + 1} ile indirildi.`);
+                                }
+                            }
+                        } catch (error) {
+                            console.log(`Proxy ${i + 1} başarısız:`, error.message);
+                        }
+                    }
+                    
+                    if (success && pdfData) {
+                        // İndirilen dosyayı dosya seçimi mantığı ile yükle
+                        console.log('PDF verisi alındı, dosya olarak işleniyor...');
+                        
+                        // Blob oluştur ve File objesi gibi davran
+                        const blob = new Blob([pdfData], { type: 'application/pdf' });
+                        
+                        // File constructor ile gerçek dosya objesi oluştur
+                        const fileName = `${lessonName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                        const file = new File([blob], fileName, { type: 'application/pdf' });
+                        
+                        // Dosya seçimi mantığı ile yükle
+                        await this.loadPDFFromFile(file);
+                        
+                        console.log(`${lessonName} başarıyla yüklendi!`);
+                        this.showError(`✅ ${lessonName} başarıyla yüklendi!`, 'success');
+                        
+                    } else {
+                        throw new Error('Hiçbir proxy ile dosya indirilemedi');
+                    }
+                    
+                } catch (error) {
+                    console.error('Ders materyali yükleme hatası:', error);
+                    this.showError(`❌ ${lessonName} yüklenemedi: ${error.message}`, 'error');
+                    this.showLoading(false);
+                    
+                    // Alternatif çözüm öner
+                    if (confirm(`${lessonName} otomatik yüklenemedi. Dosyayı yeni sekmede açmak ister misiniz?`)) {
+                        window.open(url, '_blank');
+                    }
+                }
             }
 
             async loadPDFFromFile(file) {
@@ -634,6 +736,7 @@
                     const arrayBuffer = await file.arrayBuffer();
                     this.originalPdfData = arrayBuffer; // Orijinal veriyi sakla
                     await this.loadPDF(arrayBuffer);
+                    console.log(`Dosya başarıyla yüklendi: ${file.name}`);
                 } catch (error) {
                     this.showError('Dosya yüklenirken hata oluştu: ' + error.message);
                     this.showLoading(false);
@@ -646,82 +749,282 @@
                     
                     let downloadUrl = this.processOneDriveUrl(url);
                     
-                    // CORS proxy kullanarak yükleme dene
-                    const proxyUrls = [
-                        `https://api.allorigins.win/raw?url=${encodeURIComponent(downloadUrl)}`,
-                        `https://corsproxy.io/?${encodeURIComponent(downloadUrl)}`,
-                        downloadUrl // Direkt deneme
-                    ];
+                    // URL tipine göre özel proxy stratejisi
+                    let proxyUrls = this.getProxyStrategy(downloadUrl, url);
                     
                     let lastError = null;
                     let success = false;
                     
-                    for (const proxyUrl of proxyUrls) {
+                    for (let i = 0; i < proxyUrls.length; i++) {
+                        const proxyUrl = proxyUrls[i];
                         try {
-                            console.log('Denenen URL:', proxyUrl);
+                            console.log(`Deneme ${i + 1}/${proxyUrls.length}: ${proxyUrl}`);
+                            
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 saniye timeout
+                            
                             const response = await fetch(proxyUrl, {
                                 method: 'GET',
                                 mode: 'cors',
+                                signal: controller.signal,
                                 headers: {
-                                    'Accept': 'application/pdf,*/*',
-                                }
+                                    'Accept': 'application/pdf,application/octet-stream,*/*',
+                                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                                    'Referer': window.location.origin,
+                                    'Cache-Control': 'no-cache'
+                                },
+                                cache: 'no-store'
                             });
+                            
+                            clearTimeout(timeoutId);
                             
                             if (!response.ok) {
                                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                             }
                             
+                            console.log('Yanıt başarılı, veri kontrol ediliyor...');
                             const arrayBuffer = await response.arrayBuffer();
                             
-                            // PDF olup olmadığını kontrol et
-                            const uint8Array = new Uint8Array(arrayBuffer);
-                            const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 4));
-                            if (pdfHeader !== '%PDF') {
-                                throw new Error('Geçersiz PDF dosyası');
+                            if (arrayBuffer.byteLength === 0) {
+                                throw new Error('Boş dosya alındı');
                             }
                             
-                            this.originalPdfData = arrayBuffer; // Orijinal veriyi sakla
+                            // Dosya türü kontrolü
+                            const uint8Array = new Uint8Array(arrayBuffer);
+                            const isValidPDF = this.validatePDFData(uint8Array);
+                            
+                            if (!isValidPDF) {
+                                // HTML hata sayfası kontrolü
+                                const textDecoder = new TextDecoder();
+                                const text = textDecoder.decode(uint8Array.slice(0, 500));
+                                if (text.includes('<html') || text.includes('error') || text.includes('404') || text.includes('Access Denied')) {
+                                    throw new Error('Sunucu hata sayfası döndürdü');
+                                }
+                                console.log('PDF olmayan dosya ama yüklemeye çalışılıyor...');
+                            }
+                            
+                            this.originalPdfData = arrayBuffer;
                             await this.loadPDF(arrayBuffer);
                             success = true;
+                            console.log(`Başarılı! ${i + 1}. yöntem ile yüklendi.`);
+                            this.showError(`✅ PDF başarıyla yüklendi! (Yöntem: ${i + 1})`, 'success');
                             break;
+                            
                         } catch (error) {
-                            console.log('URL deneme başarısız:', error.message);
+                            console.log(`Yöntem ${i + 1} başarısız:`, error.message);
                             lastError = error;
+                            
+                            // Özel hata türleri için farklı bekleme süreleri
+                            if (error.name === 'AbortError') {
+                                console.log('Timeout hatası, hızlıca sonraki yönteme geçiliyor...');
+                            } else {
+                                // Kısa bekleme süresi
+                                await new Promise(resolve => setTimeout(resolve, 500));
+                            }
                             continue;
                         }
                     }
                     
                     if (!success) {
-                        throw lastError || new Error('Tüm yükleme yöntemleri başarısız oldu');
+                        console.error('Tüm yöntemler başarısız oldu');
+                        this.showAlternativeMethods(downloadUrl, url);
+                        throw new Error(`Dosya yüklenemedi. Son hata: ${lastError?.message || 'Bilinmeyen hata'}`);
                     }
                     
                 } catch (error) {
                     console.error('PDF yükleme hatası:', error);
-                    this.showError(`URL'den yükleme hatası: ${error.message}. Lütfen OneDrive linkinin herkese açık paylaşıma ayarlandığından emin olun.`);
+                    this.showError(`❌ URL'den yükleme hatası: ${error.message}`);
                     this.showLoading(false);
                 }
             }
 
-            processOneDriveUrl(url) {
-                // OneDrive bağlantısını işle
-                if (url.includes('onedrive.live.com')) {
-                    // Paylaşım linkini direkt indirme linkine çevir
-                    if (url.includes('/view?')) {
-                        return url.replace('/view?', '/download?');
-                    } else if (url.includes('?')) {
-                        return url + '&download=1';
-                    } else {
-                        return url + '?download=1';
-                    }
-                } else if (url.includes('1drv.ms')) {
-                    // Kısaltılmış OneDrive linkini işle
-                    return url + (url.includes('?') ? '&download=1' : '?download=1');
-                } else if (url.includes('sharepoint.com')) {
-                    // SharePoint linklerini işle
-                    return url + (url.includes('?') ? '&download=1' : '?download=1');
+            getProxyStrategy(processedUrl, originalUrl) {
+                // URL tipine göre en uygun proxy stratejisini belirle
+                let proxyUrls = [];
+                
+                // GitHub için özel strateji
+                if (processedUrl.includes('raw.githubusercontent.com')) {
+                    proxyUrls = [
+                        processedUrl, // GitHub raw URL'ler genellikle CORS destekler
+                        `https://cdn.jsdelivr.net/gh/${this.extractGitHubPath(originalUrl)}`,
+                        `https://cors-anywhere.herokuapp.com/${processedUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(processedUrl)}`
+                    ];
                 }
                 
-                return url;
+                // Google Drive için özel strateji
+                else if (processedUrl.includes('drive.google.com')) {
+                    proxyUrls = [
+                        processedUrl,
+                        `https://cors-anywhere.herokuapp.com/${processedUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(processedUrl)}`,
+                        `https://corsproxy.io/?${encodeURIComponent(processedUrl)}`,
+                        `https://thingproxy.freeboard.io/fetch/${processedUrl}`
+                    ];
+                }
+                
+                // SharePoint için özel strateji
+                else if (processedUrl.includes('sharepoint.com')) {
+                    proxyUrls = [
+                        `https://cors-anywhere.herokuapp.com/${processedUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(processedUrl)}`,
+                        `https://corsproxy.io/?${encodeURIComponent(processedUrl)}`,
+                        processedUrl
+                    ];
+                }
+                
+                // Türk üniversiteleri için özel strateji
+                else if (processedUrl.includes('.edu.tr') || processedUrl.includes('.gov.tr')) {
+                    proxyUrls = [
+                        `https://cors-anywhere.herokuapp.com/${processedUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(processedUrl)}`,
+                        `https://corsproxy.io/?${encodeURIComponent(processedUrl)}`,
+                        `https://cors.bridged.cc/${processedUrl}`,
+                        `https://yacdn.org/proxy/${processedUrl}`,
+                        processedUrl
+                    ];
+                }
+                
+                // Genel strateji
+                else {
+                    proxyUrls = [
+                        processedUrl,
+                        `https://cors-anywhere.herokuapp.com/${processedUrl}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(processedUrl)}`,
+                        `https://corsproxy.io/?${encodeURIComponent(processedUrl)}`,
+                        `https://cors.bridged.cc/${processedUrl}`,
+                        `https://yacdn.org/proxy/${processedUrl}`,
+                        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(processedUrl)}`,
+                        `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(processedUrl)}`,
+                        `https://thingproxy.freeboard.io/fetch/${processedUrl}`
+                    ];
+                }
+                
+                return proxyUrls;
+            }
+
+            extractGitHubPath(githubUrl) {
+                // GitHub URL'den JSDelivr için path çıkar
+                const match = githubUrl.match(/github\.com\/([^\/]+\/[^\/]+)\/blob\/([^\/]+)\/(.+)/);
+                if (match) {
+                    return `${match[1]}@${match[2]}/${match[3]}`;
+                }
+                return null;
+            }
+
+            validatePDFData(uint8Array) {
+                // PDF header kontrolü
+                const pdfHeader = String.fromCharCode(...uint8Array.slice(0, 4));
+                if (pdfHeader === '%PDF') {
+                    return true;
+                }
+                
+                // Alternatif PDF belirteçleri
+                const firstBytes = Array.from(uint8Array.slice(0, 10));
+                const pdfSignatures = [
+                    [0x25, 0x50, 0x44, 0x46], // %PDF
+                    [0xFF, 0xD8, 0xFF], // JPEG (bazen PDF içinde)
+                ];
+                
+                for (const signature of pdfSignatures) {
+                    let match = true;
+                    for (let i = 0; i < signature.length; i++) {
+                        if (firstBytes[i] !== signature[i]) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) return true;
+                }
+                
+                return false;
+            }
+
+            showAlternativeMethods(originalUrl) {
+                const message = `
+CORS hatası nedeniyle dosya yüklenemedi. Alternatif yöntemler:
+
+1. Dosyayı bilgisayarınıza indirip "PDF Dosyası Seç" butonunu kullanın
+2. Dosya linkini yeni sekmede açıp manuel olarak indirin: ${originalUrl}
+3. OneDrive veya Google Drive gibi cloud servislere yükleyip paylaşım linkini kullanın
+4. PDF'i doğrudan tarayıcınızda açmayı deneyin
+
+Bu sorun, web sitesinin CORS (Cross-Origin Resource Sharing) politikası nedeniyle oluşmaktadır.
+                `;
+                
+                console.log('Alternatif yöntemler:', message);
+                
+                // Kullanıcıya seçenek sun
+                if (confirm('Dosya yüklenemedi. Orijinal linki yeni sekmede açmak ister misiniz?')) {
+                    window.open(originalUrl, '_blank');
+                }
+            }
+
+            processOneDriveUrl(url) {
+                // URL'yi temizle ve normalize et
+                let cleanUrl = url.trim();
+                
+                console.log('URL işleniyor:', cleanUrl);
+                
+                // GitHub raw URL kontrolü
+                if (cleanUrl.includes('github.com') && cleanUrl.includes('/blob/')) {
+                    cleanUrl = cleanUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+                    console.log('GitHub URL düzeltildi:', cleanUrl);
+                }
+                
+                // Google Drive linklerini export linkine çevir
+                if (cleanUrl.includes('drive.google.com')) {
+                    const fileIdMatch = cleanUrl.match(/\/file\/d\/([a-zA-Z0-9-_]+)/);
+                    if (fileIdMatch) {
+                        cleanUrl = `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
+                        console.log('Google Drive URL düzeltildi:', cleanUrl);
+                    }
+                }
+                
+                // SharePoint linklerini işle
+                if (cleanUrl.includes('sharepoint.com') && cleanUrl.includes(':b:')) {
+                    // SharePoint URL'yi direkt indirme linkine çevir
+                    if (cleanUrl.includes('?')) {
+                        cleanUrl = cleanUrl + '&download=1';
+                    } else {
+                        cleanUrl = cleanUrl + '?download=1';
+                    }
+                    console.log('SharePoint URL düzeltildi:', cleanUrl);
+                }
+                
+                // OneDrive bağlantısını işle
+                if (cleanUrl.includes('onedrive.live.com')) {
+                    if (cleanUrl.includes('/view?')) {
+                        cleanUrl = cleanUrl.replace('/view?', '/download?');
+                    } else if (cleanUrl.includes('?')) {
+                        cleanUrl = cleanUrl + '&download=1';
+                    } else {
+                        cleanUrl = cleanUrl + '?download=1';
+                    }
+                    console.log('OneDrive URL düzeltildi:', cleanUrl);
+                }
+                
+                // 1drv.ms kısaltılmış linkler
+                if (cleanUrl.includes('1drv.ms')) {
+                    cleanUrl = cleanUrl + (cleanUrl.includes('?') ? '&download=1' : '?download=1');
+                    console.log('1drv.ms URL düzeltildi:', cleanUrl);
+                }
+                
+                // Dropbox linklerini işle
+                if (cleanUrl.includes('dropbox.com')) {
+                    cleanUrl = cleanUrl.replace('?dl=0', '?dl=1');
+                    if (!cleanUrl.includes('?dl=1')) {
+                        cleanUrl = cleanUrl + (cleanUrl.includes('?') ? '&dl=1' : '?dl=1');
+                    }
+                    console.log('Dropbox URL düzeltildi:', cleanUrl);
+                }
+                
+                // Yalova Üniversitesi ve benzeri direct linkler için
+                if (cleanUrl.includes('.edu.tr') || cleanUrl.includes('.gov.tr') || cleanUrl.endsWith('.pdf')) {
+                    console.log('Direct PDF linki tespit edildi:', cleanUrl);
+                }
+                
+                return cleanUrl;
             }
 
             async loadPDF(source) {
@@ -858,10 +1161,11 @@
                         this.canvas.style.maxWidth = 'calc(100vw - 20px)';
                         this.canvas.style.maxHeight = 'calc(100vh - 20px)';
                     } else {
-                        this.canvas.style.width = viewport.width + 'px';
-                        this.canvas.style.height = viewport.height + 'px';
+                        // Normal modda genişlik %100, yükseklik otomatik
+                        this.canvas.style.width = '100%';
+                        this.canvas.style.height = 'auto';
                         this.canvas.style.maxWidth = '100%';
-                        this.canvas.style.maxHeight = '100%';
+                        this.canvas.style.maxHeight = 'none';
                     }
                     
                     const renderContext = {

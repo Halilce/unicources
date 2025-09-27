@@ -265,99 +265,6 @@
             border-color: #666;
         }
 
-        /* Tam ekran navigasyon kontrolleri */
-        .fullscreen-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 25px;
-            padding: 10px 20px;
-            display: none;
-            align-items: center;
-            gap: 15px;
-            z-index: 1002;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .pdf-container.fullscreen .fullscreen-nav {
-            display: flex;
-        }
-
-        .fullscreen-nav-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            min-width: 40px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .fullscreen-nav-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: scale(1.05);
-        }
-
-        .fullscreen-nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .fullscreen-nav-btn:disabled:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: none;
-        }
-
-        .fullscreen-page-input {
-            width: 50px;
-            padding: 6px 8px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .fullscreen-page-input:focus {
-            outline: none;
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .fullscreen-page-info {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            font-weight: 500;
-            min-width: 30px;
-            text-align: center;
-        }
-
-        /* Otomatik gizleme animasyonu */
-        .fullscreen-nav.auto-hide {
-            opacity: 0;
-            transform: translateX(-50%) translateY(20px);
-            transition: all 0.3s ease;
-        }
-
-        .fullscreen-nav:not(.auto-hide) {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            transition: all 0.3s ease;
-        }
-
         .loading {
             display: none;
             text-align: center;
@@ -618,14 +525,6 @@
         <div class="pdf-container" id="pdfContainer" style="display: none;">
             <button class="fullscreen-btn" id="fullscreenBtn" title="Tam Ekran">⛶</button>
             <canvas id="pdfCanvas"></canvas>
-            
-            <!-- Tam ekran navigasyon kontrolleri -->
-            <div class="fullscreen-nav" id="fullscreenNav">
-                <button id="fullscreenPrevPage" class="fullscreen-nav-btn">⬅️</button>
-                <input type="number" id="fullscreenPageInput" class="fullscreen-page-input" min="1" value="1">
-                <span class="fullscreen-page-info">/<span id="fullscreenTotalPages">0</span></span>
-                <button id="fullscreenNextPage" class="fullscreen-nav-btn">➡️</button>
-            </div>
         </div>
     </div>
 	
@@ -711,48 +610,6 @@
                 document.getElementById('fullscreenBtn').addEventListener('click', () => {
                     this.toggleFullscreen();
                 });
-
-                // Tam ekran navigasyon kontrolleri
-                document.getElementById('fullscreenPrevPage').addEventListener('click', () => {
-                    this.goToPreviousPage();
-                    this.showFullscreenNav();
-                });
-
-                document.getElementById('fullscreenNextPage').addEventListener('click', () => {
-                    this.goToNextPage();
-                    this.showFullscreenNav();
-                });
-
-                document.getElementById('fullscreenPageInput').addEventListener('change', (e) => {
-                    const pageNum = parseInt(e.target.value);
-                    if (this.pdfDoc && pageNum >= 1 && pageNum <= this.pdfDoc.numPages) {
-                        this.currentPage = pageNum;
-                        this.renderPage();
-                        this.updateControls();
-                        this.updateFullscreenControls();
-                    }
-                    this.showFullscreenNav();
-                });
-
-                document.getElementById('fullscreenPageInput').addEventListener('focus', () => {
-                    this.showFullscreenNav();
-                });
-
-                // Tam ekran modunda mouse/dokunma hareketi ile kontrolleri göster
-                let navTimeout;
-                const showNavOnMove = () => {
-                    if (this.isFullscreen) {
-                        this.showFullscreenNav();
-                        clearTimeout(navTimeout);
-                        navTimeout = setTimeout(() => {
-                            this.hideFullscreenNav();
-                        }, 3000); // 3 saniye sonra gizle
-                    }
-                };
-
-                document.addEventListener('mousemove', showNavOnMove);
-                document.addEventListener('touchstart', showNavOnMove);
-                document.addEventListener('touchmove', showNavOnMove);
 
                 // ESC tuşu ile tam ekrandan çık
                 document.addEventListener('keydown', (e) => {
@@ -1211,7 +1068,6 @@ Bu sorun, web sitesinin CORS (Cross-Origin Resource Sharing) politikası nedeniy
                     document.getElementById('totalPages').textContent = this.pdfDoc.numPages;
                     this.updatePageInput();
                     this.updateControls();
-                    this.updateFullscreenControls();
                     
                     await this.renderPage();
                     this.showLoading(false);
@@ -1231,7 +1087,6 @@ Bu sorun, web sitesinin CORS (Cross-Origin Resource Sharing) politikası nedeniy
                     this.renderPage();
                     this.updatePageInput();
                     this.updateControls();
-                    this.updateFullscreenControls();
                 } else {
                     console.log('Zaten ilk sayfadasınız');
                 }
@@ -1248,41 +1103,12 @@ Bu sorun, web sitesinin CORS (Cross-Origin Resource Sharing) politikası nedeniy
                     this.renderPage();
                     this.updatePageInput();
                     this.updateControls();
-                    this.updateFullscreenControls();
                 } else {
                     console.log('Zaten son sayfadasınız');
                 }
             }
 
-            showFullscreenNav() {
-                if (this.isFullscreen) {
-                    const nav = document.getElementById('fullscreenNav');
-                    nav.classList.remove('auto-hide');
-                }
-            }
-
-            hideFullscreenNav() {
-                if (this.isFullscreen) {
-                    const nav = document.getElementById('fullscreenNav');
-                    nav.classList.add('auto-hide');
-                }
-            }
-
-            updateFullscreenControls() {
-                if (!this.pdfDoc) return;
-                
-                const fullscreenPrevBtn = document.getElementById('fullscreenPrevPage');
-                const fullscreenNextBtn = document.getElementById('fullscreenNextPage');
-                const fullscreenPageInput = document.getElementById('fullscreenPageInput');
-                const fullscreenTotalPages = document.getElementById('fullscreenTotalPages');
-                
-                fullscreenPrevBtn.disabled = this.currentPage <= 1;
-                fullscreenNextBtn.disabled = this.currentPage >= this.pdfDoc.numPages;
-                
-                fullscreenPageInput.value = this.currentPage;
-                fullscreenPageInput.max = this.pdfDoc.numPages;
-                fullscreenTotalPages.textContent = this.pdfDoc.numPages;
-            }
+            toggleFullscreen() {
                 const container = document.getElementById('pdfContainer');
                 const btn = document.getElementById('fullscreenBtn');
                 
